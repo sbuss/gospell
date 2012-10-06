@@ -78,6 +78,23 @@ func (t *Trie) ContainsString(s string) bool {
 	return t.Contains(strings.NewReader(s))
 }
 
+// Get all of the complete child words under this Trie node
+func (t *Trie) AllFullChildren() []string {
+	childStrings := []string{}
+
+	for r,child := range t.children {
+		if child != nil {
+			if child.leaf {
+				childStrings = append(childStrings, string(r))
+			}
+			for _, ccs := range child.AllFullChildren() {
+				childStrings = append(childStrings, string(r) + ccs)
+			}
+		}
+	}
+	return childStrings
+}
+
 // Convert a Trie to a String
 func (t *Trie) String() string{
 	c := ""
