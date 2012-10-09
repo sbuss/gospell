@@ -6,8 +6,8 @@ https://github.com/sbuss/pyspellsug
 package gospell
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 )
 
 type children map[rune]*Trie
@@ -48,7 +48,7 @@ func (t *Trie) InsertString(s string) {
 }
 
 // Get the Trie at the end of a strings.Reader
-func (t *Trie) Get (s *strings.Reader) *Trie {
+func (t *Trie) Get(s *strings.Reader) *Trie {
 	rune, _, err := s.ReadRune()
 	if err != nil {
 		// We have reached EOF
@@ -82,13 +82,13 @@ func (t *Trie) ContainsString(s string) bool {
 func (t *Trie) AllFullChildren() []string {
 	childStrings := []string{}
 
-	for r,child := range t.children {
+	for r, child := range t.children {
 		if child != nil {
 			if child.leaf {
 				childStrings = append(childStrings, string(r))
 			}
 			for _, ccs := range child.AllFullChildren() {
-				childStrings = append(childStrings, string(r) + ccs)
+				childStrings = append(childStrings, string(r)+ccs)
 			}
 		}
 	}
@@ -96,9 +96,9 @@ func (t *Trie) AllFullChildren() []string {
 }
 
 // Convert a Trie to a String
-func (t *Trie) String() string{
+func (t *Trie) String() string {
 	c := ""
-	for r,child := range t.children {
+	for r, child := range t.children {
 		c += fmt.Sprintf("%q: %v", r, child)
 	}
 	s := fmt.Sprintf("{leaf: %t, c: %v}", t.leaf, c)

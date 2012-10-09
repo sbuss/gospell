@@ -1,8 +1,8 @@
 package gospell
 
 import (
-	"testing"
 	"strings"
+	"testing"
 )
 
 func TestInsert(t *testing.T) {
@@ -28,13 +28,13 @@ func TestInsert(t *testing.T) {
 
 func HasEveryElement(t *testing.T, s1, s2 []string) bool {
 	s1Map := map[string]int{}
-	for _,val := range s1 {
+	for _, val := range s1 {
 		s1Map[val] += 1
 	}
-	for _,val := range s2 {
+	for _, val := range s2 {
 		s1Map[val] -= 1
 	}
-	for _,val := range s1Map {
+	for _, val := range s1Map {
 		if val != 0 {
 			return false
 		}
