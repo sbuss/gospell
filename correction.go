@@ -2,9 +2,11 @@ package gospell
 
 import "log"
 
-func (t *Trie) Deletions(s string) []string {
-	// Go through every character and do t.Contains(s[0:n]+s[n+1:len(s)])
-	// TODO: Is this uniode safe?
+// Go through every rune and do t.Contains(s[0:n]+s[n+1:len(s)])
+// The distance parameter is currently ignored and is implicitly 1
+func (t *Trie) Deletions(s string, distance int) []string {
+	// Based on UTF-aware string reversal by Russ Cox.
+	// See http://stackoverflow.com/questions/1752414/how-to-reverse-a-string-in-go
 	n := 0
 	deletions := []string{}
 
@@ -16,6 +18,7 @@ func (t *Trie) Deletions(s string) []string {
 	}
 
 	// Re-assign runes to get the correct length
+	// Removing this causes invalid memory address errors
 	runes = runes[0:n]
 
 	c := make([]rune, n-1)

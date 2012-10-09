@@ -44,7 +44,7 @@ func TestDeletions(t *testing.T) {
 	trie.InsertString(s6)
 	trie.InsertString(s7)
 
-	deletions := trie.Deletions(s1)
+	deletions := trie.Deletions(s1, 1)
 	if len(deletions) != len(expected) {
 		t.Errorf("Deletions is %v", deletions)
 	}
@@ -65,7 +65,7 @@ func TestDeletionsUTF(t *testing.T) {
 	for _, s := range expected {
 		trie.InsertString(s)
 	}
-	deletions := trie.Deletions(s1)
+	deletions := trie.Deletions(s1, 1)
 	if len(deletions) != len(expected) {
 		t.Errorf("Deletions is %v", deletions)
 	}
