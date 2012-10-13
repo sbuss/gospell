@@ -66,7 +66,11 @@ func (t *Trie) Get(s *strings.Reader) *Trie {
 // Insert the strings Salmon and Salmonella. Sal will not be Contained in the
 // Trie, but Salmon and Salmonella both are.
 func (t *Trie) Contains(s *strings.Reader) bool {
-	return t.Get(s).leaf
+	child := t.Get(s)
+	if child != nil {
+		return child.leaf
+	}
+	return false
 }
 
 // Check is a String is Contained in the Trie. See Trie.Contains.
