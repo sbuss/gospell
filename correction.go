@@ -1,7 +1,5 @@
 package gospell
 
-import "log"
-
 // Convert a string into a slice of runes
 func runes(s string) []rune {
 	// Based on UTF-aware string reversal by Russ Cox.
@@ -19,29 +17,55 @@ func runes(s string) []rune {
 	return runes
 }
 
-// Go through every rune and do t.Contains(s[0:n]+s[n+1:len(s)])
-// The distance parameter is currently ignored and is implicitly 1
-func (t *Trie) Deletions(s string, distance int) []string {
-	deletions := []string{}
-	runes := runes(s)
-	n := len(runes)
-	c := make([]rune, n-1)
+func prependRune(runes []rune, newRune rune) []rune {
+	return append([]rune{newRune}, runes...)
+}
 
-	// Then build substrings
-	// TODO: Respect distance arg, and make this less stupid & ugly
-	for i, _ := range runes {
-		c = []rune{}
-		log.Printf("c is %v", c)
-		for j, v := range runes {
-			if i == j {
-				continue
-			}
-			c = append(c, v)
+func (t *Trie) deletions(r []rune, distance int) [][]rune {
+	runes := make([][]rune, 0)
+
+	if len(r) == 0 {
+		if t.leaf && distance == 0 {
+			runes = append(runes, []rune{})
 		}
-		log.Printf("c is %v", c)
-		if t.ContainsString(string(c)) {
-			deletions = append(deletions, string(c))
+		return runes
+	}
+
+	// Two cases:
+	// 1. Pop the first rune from the list, recurse on the child with that rune
+	//  as the key
+	// 2. Pop the first rune from the list, recurse on the current node
+	//  (effectively ignoring this rune)
+
+	first := r[0]
+	rest := r[1:]
+	// Case 1
+	child := t.children[first]
+	if child != nil {
+		childRunes := child.deletions(rest, distance)
+		for _, c := range childRunes {
+			runes = append(runes, prependRune(c, first))
 		}
 	}
-	return deletions
+	// Case 2
+	if distance > 0 {
+		runes = append(runes, t.deletions(rest, distance-1)...)
+	}
+
+	return runes
+}
+
+// Find all strings in the trie within a given deletion distance
+// For example, for the Trie{"abcd", "abc", "ab", "cd"},
+// Deletions("abcd", 2) would return ["ab", "cd"] and 
+// Deletions("abcd", 1) would return ["abc"]
+func (t *Trie) Deletions(s string, distance int) []string {
+	strings := make([]string, 0)
+
+	childRunes := t.deletions(runes(s), distance)
+	for _, r := range childRunes {
+		strings = append(strings, string(r))
+	}
+
+	return strings
 }
