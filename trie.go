@@ -6,7 +6,9 @@ https://github.com/sbuss/pyspellsug
 package gospell
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -23,6 +25,27 @@ func NewTrie() *Trie {
 	t.children = make(children)
 	t.leaf = false
 	return t
+}
+
+// Load a newline-delimited list of words into a new Trie
+func TrieFromFile(fname string) (t *Trie, err error) {
+	trie := NewTrie()
+	f, err := os.Open(fname)
+	if err != nil {
+		return trie, fmt.Errorf("Can't find file %v", fname)
+	}
+	defer f.Close()
+
+	reader := bufio.NewReader(f)
+	word, err := reader.ReadString('\n')
+
+	for err == nil {
+		// Don't insert the '\n'
+		w := word[:len(word)-1]
+		trie.InsertString(w)
+		word, err = reader.ReadString('\n')
+	}
+	return trie, nil
 }
 
 // Insert a strings.Reader into the Trie
