@@ -102,3 +102,28 @@ func TestDeletionsUTF(t *testing.T) {
 	}
 	assertAllIn(t, expected3, deletions)
 }
+
+func TestPermutations(t *testing.T) {
+	s1 := "ab狐d犬"
+	expected := []string{
+		s1,
+		"ba狐d犬",
+		"abd狐犬",
+		"犬d狐ba"}
+	s2 := "abc"
+	s3 := "abd"
+
+	trie := NewTrie()
+	trie.InsertString(s1)
+	trie.InsertString(s2)
+	trie.InsertString(s3)
+	for _, s := range expected {
+		trie.InsertString(s)
+	}
+
+	permutations := trie.Permutations(s1, 1)
+	if len(permutations) != len(expected) {
+		t.Errorf("Permutations has the wrong number of words %v", permutations)
+	}
+	assertAllIn(t, expected, permutations)
+}

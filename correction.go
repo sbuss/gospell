@@ -17,6 +17,7 @@ func runes(s string) []rune {
 	return runes
 }
 
+// Prepend a rune to a slice of runes
 func prependRune(runes []rune, newRune rune) []rune {
 	return append([]rune{newRune}, runes...)
 }
@@ -60,11 +61,50 @@ func (t *Trie) deletions(r []rune, distance int) [][]rune {
 // Deletions("abcd", 2) would return ["ab", "cd"] and 
 // Deletions("abcd", 1) would return ["abc"]
 func (t *Trie) Deletions(s string, distance int) []string {
-	strings := make([]string, 0)
-
 	childRunes := t.deletions(runes(s), distance)
-	for _, r := range childRunes {
-		strings = append(strings, string(r))
+	strings := make([]string, len(childRunes))
+	for i, r := range childRunes {
+		strings[i] = string(r)
+	}
+
+	return strings
+}
+
+// Find all permutations of r that exist in the trie
+// This does not currently respect the distance parameter
+func (t *Trie) permutations(r []rune, distance int) [][]rune {
+	runes := make([][]rune, 0)
+
+	if len(r) == 0 {
+		if t.leaf {
+			runes = append(runes, []rune{})
+		}
+		return runes
+	}
+
+	for i, c := range r {
+		// If we don't make a new slice things get overwritten... not sure why
+		rest := make([]rune, 0)
+		rest = append(rest, r[:i]...)
+		rest = append(rest, r[i+1:]...)
+		child := t.children[c]
+		if child != nil {
+			childRunes := child.permutations(rest, distance)
+			for _, cr := range childRunes {
+				runes = append(runes, prependRune(cr, c))
+			}
+		}
+	}
+
+	return runes
+}
+
+// Find all strings matching permutations of the given distance
+func (t *Trie) Permutations(s string, distance int) []string {
+	childRunes := t.permutations(runes(s), distance)
+	strings := make([]string, len(childRunes))
+	for i, r := range childRunes {
+		strings[i] = string(r)
 	}
 
 	return strings
