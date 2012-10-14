@@ -8,6 +8,8 @@ import (
 )
 
 func assertAllIn(t *testing.T, expected, actual []string) {
+	fmt.Printf("Expected: %v\n", expected)
+	fmt.Printf("Actual:   %v\n", actual)
 	words := make(map[string]int)
 	for _, word := range actual {
 		words[word] += 1
@@ -63,6 +65,7 @@ func TestDeletions(t *testing.T) {
 	}
 
 	deletions = trie.Deletions(s1, 1)
+	fmt.Println(deletions)
 	if len(deletions) != len(expected1) {
 		t.Errorf("Deletions has the wrong number of words %v", deletions)
 	}
@@ -274,4 +277,47 @@ func TestLoadDict(t *testing.T) {
 		t.Errorf("Suggestions has the wrong number of words %v", suggestions)
 	}
 	assertAllIn(t, expected, suggestions)
+}
+
+func TestDistance(t *testing.T) {
+	s1 := "toad"
+	// Ensure sorting is correct
+	expectedOrdered := Matches{
+		Match{runes(s1), 0, 0},
+		Match{runes("load"), 1, 0},
+		Match{runes("toads"), 1, 0},
+		Match{runes("todd"), 1, 0},
+		Match{runes("tod"), 2, 0},
+		Match{runes("toda"), 2, 0},
+	}
+	expected := make([]string, len(expectedOrdered))
+	for i, match := range expectedOrdered {
+		expected[i] = string(match.Word)
+	}
+	unexpected := []string{
+		"robert",
+		"today", // Note: today should probably be suggested in the future
+		"teddy",
+		"bad"}
+
+	trie := NewTrie()
+	trie.InsertString(s1)
+	for _, s := range expected {
+		trie.InsertString(s)
+	}
+	for _, s := range unexpected {
+		trie.InsertString(s)
+	}
+
+	suggestions := trie.suggestions(runes(s1), 2)
+	if len(expected) != len(suggestions) {
+		t.Errorf("Suggestions has the wrong number of matches %v", suggestions)
+	}
+
+
+	for i, match := range suggestions {
+		if !expectedOrdered[i].Equal(match) {
+			t.Errorf("%v != %v\n", expectedOrdered[i], match)
+		}
+	}
 }

@@ -1,5 +1,35 @@
 package gospell
 
+import "sort"
+
+// Find all strings in the trie within a given deletion distance
+// For example, for the Trie{"abcd", "abc", "ab", "cd"},
+// Deletions("abcd", 2) would return ["ab", "cd"] and
+// Deletions("abcd", 1) would return ["abc"]
+func (t *Trie) Deletions(s string, distance int) []string {
+	return t.deletions(runes(s), distance).Strings()
+}
+
+// Find all words in the Trie adding at most `distance` runes
+func (t *Trie) Additions(s string, distance int) []string {
+	return t.additions(runes(s), distance).Strings()
+}
+
+// Find all words in the Trie adding at most `distance` runes
+func (t *Trie) Substitutions(s string, distance int) []string {
+	return t.substitutions(runes(s), distance).Strings()
+}
+
+// Find all strings matching permutations of the given distance
+func (t *Trie) Permutations(s string, distance int) []string {
+	return t.permutations(runes(s), distance).Strings()
+}
+
+// Return spelling suggestions, ranked by Distance then lexicographically
+func (t *Trie) SuggestWords(s string, distance int) []string {
+	return t.suggestions(runes(s), distance).Strings()
+}
+
 // Convert a string into a slice of runes
 func runes(s string) []rune {
 	// Based on UTF-aware string reversal by Russ Cox.
@@ -17,19 +47,14 @@ func runes(s string) []rune {
 	return runes
 }
 
-// Prepend a rune to a slice of runes
-func prependRune(runes []rune, newRune rune) []rune {
-	return append([]rune{newRune}, runes...)
-}
-
-func (t *Trie) deletions(r []rune, distance int) [][]rune {
-	runes := make([][]rune, 0)
+func (t *Trie) deletions(r []rune, distance int) Matches {
+	matches := Matches{}
 
 	if len(r) == 0 {
 		if t.leaf {
-			runes = append(runes, []rune{})
+			matches = append(matches, Match{})
 		}
-		return runes
+		return matches
 	}
 
 	// Two cases:
@@ -43,43 +68,32 @@ func (t *Trie) deletions(r []rune, distance int) [][]rune {
 	// Case 1
 	child := t.children[first]
 	if child != nil {
-		childRunes := child.deletions(rest, distance)
-		for _, c := range childRunes {
-			runes = append(runes, prependRune(c, first))
+		childMatches := child.deletions(rest, distance)
+		for _, m := range childMatches {
+			matches = append(matches, m.update(first, 0, 0))
 		}
 	}
 	// Case 2
 	if distance > 0 {
-		runes = append(runes, t.deletions(rest, distance-1)...)
+		childMatches := t.deletions(rest, distance-1)
+		for _, m := range childMatches {
+			matches = append(matches, m.update(0, 2, 0))
+		}
 	}
 
-	return runes
-}
-
-// Find all strings in the trie within a given deletion distance
-// For example, for the Trie{"abcd", "abc", "ab", "cd"},
-// Deletions("abcd", 2) would return ["ab", "cd"] and 
-// Deletions("abcd", 1) would return ["abc"]
-func (t *Trie) Deletions(s string, distance int) []string {
-	childRunes := t.deletions(runes(s), distance)
-	strings := make([]string, len(childRunes))
-	for i, r := range childRunes {
-		strings[i] = string(r)
-	}
-
-	return strings
+	return matches
 }
 
 // Find all permutations of r that exist in the trie
 // This does not currently respect the distance parameter
-func (t *Trie) permutations(r []rune, distance int) [][]rune {
-	runes := make([][]rune, 0)
+func (t *Trie) permutations(r []rune, distance int) Matches {
+	matches := Matches{}
 
 	if len(r) == 0 {
 		if t.leaf {
-			runes = append(runes, []rune{})
+			matches = append(matches, Match{})
 		}
-		return runes
+		return matches
 	}
 
 	for i, c := range r {
@@ -89,29 +103,18 @@ func (t *Trie) permutations(r []rune, distance int) [][]rune {
 		rest = append(rest, r[i+1:]...)
 		child := t.children[c]
 		if child != nil {
-			childRunes := child.permutations(rest, distance)
-			for _, cr := range childRunes {
-				runes = append(runes, prependRune(cr, c))
+			childMatches := child.permutations(rest, distance)
+			for _, cr := range childMatches {
+				matches = append(matches, cr.update(c, 2, 0))
 			}
 		}
 	}
 
-	return runes
+	return matches
 }
 
-// Find all strings matching permutations of the given distance
-func (t *Trie) Permutations(s string, distance int) []string {
-	childRunes := t.permutations(runes(s), distance)
-	strings := make([]string, len(childRunes))
-	for i, r := range childRunes {
-		strings[i] = string(r)
-	}
-
-	return strings
-}
-
-func (t *Trie) additions(r []rune, distance int) [][]rune {
-	runes := make([][]rune, 0)
+func (t *Trie) additions(r []rune, distance int) Matches {
+	matches := Matches{}
 
 	// Three cases:
 	// 0. All runes have been seen, but we have distance to spare, so add runes
@@ -122,7 +125,7 @@ func (t *Trie) additions(r []rune, distance int) [][]rune {
 	if len(r) == 0 {
 		// Case 0: no more runes but more to add
 		if t.leaf {
-			runes = append(runes, []rune{})
+			matches = append(matches, Match{})
 		}
 	} else {
 		// Case 1
@@ -130,9 +133,9 @@ func (t *Trie) additions(r []rune, distance int) [][]rune {
 		rest := r[1:]
 		child, ok := t.children[first]
 		if ok {
-			childRunes := child.additions(rest, distance)
-			for _, cr := range childRunes {
-				runes = append(runes, prependRune(cr, first))
+			childMatches := child.additions(rest, distance)
+			for _, cr := range childMatches {
+				matches = append(matches, cr.update(first, 0, 0))
 			}
 		}
 	}
@@ -140,35 +143,24 @@ func (t *Trie) additions(r []rune, distance int) [][]rune {
 	// Case 2
 	if distance > 0 {
 		for c, child := range t.children {
-			childRunes := child.additions(r, distance-1)
-			for _, cr := range childRunes {
-				runes = append(runes, prependRune(cr, c))
+			childMatches := child.additions(r, distance-1)
+			for _, cr := range childMatches {
+				matches = append(matches, cr.update(c, 1, 0))
 			}
 		}
 	}
 
-	return runes
+	return matches
 }
 
-// Find all words in the Trie adding at most `distance` runes
-func (t *Trie) Additions(s string, distance int) []string {
-	childRunes := t.additions(runes(s), distance)
-	strings := make([]string, len(childRunes))
-	for i, r := range childRunes {
-		strings[i] = string(r)
-	}
-
-	return strings
-}
-
-func (t *Trie) substitutions(r []rune, distance int) [][]rune {
-	runes := make([][]rune, 0)
+func (t *Trie) substitutions(r []rune, distance int) Matches {
+	matches := Matches{}
 
 	if len(r) == 0 {
 		if t.leaf {
-			runes = append(runes, []rune{})
+			matches = append(matches, Match{})
 		}
-		return runes
+		return matches
 	}
 
 	// Two cases:
@@ -182,51 +174,41 @@ func (t *Trie) substitutions(r []rune, distance int) [][]rune {
 		if child == nil {
 			continue
 		}
-		childRunes := make([][]rune, 0)
+		d := 0
+		childMatches := Matches{}
 		if c == first {
 			// Case 1
-			childRunes = child.substitutions(rest, distance)
+			childMatches = child.substitutions(rest, distance)
 		} else if distance > 0 {
 			// Case 2
-			childRunes = child.substitutions(rest, distance-1)
+			childMatches = child.substitutions(rest, distance-1)
+			d = 1
 		} else {
 			continue
 		}
 
-		for _, cr := range childRunes {
-			runes = append(runes, prependRune(cr, c))
+		for _, cr := range childMatches {
+			matches = append(matches, cr.update(c, d, 0))
 		}
 	}
-	return runes
+	return matches
 }
 
-// Find all words in the Trie adding at most `distance` runes
-func (t *Trie) Substitutions(s string, distance int) []string {
-	childRunes := t.substitutions(runes(s), distance)
-	strings := make([]string, len(childRunes))
-	for i, r := range childRunes {
-		strings[i] = string(r)
-	}
+func (t *Trie) suggestions(r []rune, distance int) Matches {
+	suggestions := Matches{}
+	additions := t.additions(r, distance)
+	deletions := t.deletions(r, distance)
+	permutations := t.permutations(r, distance)
+	substitutions := t.substitutions(r, distance)
 
-	return strings
-}
-
-// Return spelling suggestions, ranked arbitrarily
-func (t *Trie) SuggestWords(s string, distance int) []string {
-	suggestions := make([]string, 0)
-	additions := t.Additions(s, distance)
-	deletions := t.Deletions(s, distance)
-	permutations := t.Permutations(s, distance)
-	substitutions := t.Substitutions(s, distance)
-
-	dupes := make(map[string]int)
-
-	addIfUnique := func(words []string) []string {
-		ret := make([]string, len(words))
+	unique := func(matches Matches) Matches {
+		dupes := make(map[string]int)
+		ret := make(Matches, len(matches))
 		i := 0
-		for _, word := range words {
+		for _, match := range matches {
+			word := string(match.Word)
 			if _, ok := dupes[word]; !ok {
-				ret[i] = word
+				ret[i] = match
 				dupes[word] = 1
 				i += 1
 			}
@@ -235,9 +217,11 @@ func (t *Trie) SuggestWords(s string, distance int) []string {
 	}
 
 	// Combine and remove duplicates
-	suggestions = append(suggestions, addIfUnique(additions)...)
-	suggestions = append(suggestions, addIfUnique(deletions)...)
-	suggestions = append(suggestions, addIfUnique(permutations)...)
-	suggestions = append(suggestions, addIfUnique(substitutions)...)
-	return suggestions
+	suggestions = append(suggestions, additions...)
+	suggestions = append(suggestions, deletions...)
+	suggestions = append(suggestions, permutations...)
+	suggestions = append(suggestions, substitutions...)
+	// Sort by distance so we only keep the lowest scoring match
+	sort.Sort(ByDistance{suggestions})
+	return unique(suggestions)
 }
