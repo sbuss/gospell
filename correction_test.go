@@ -1,6 +1,9 @@
 package gospell
 
 import (
+	"bufio"
+	"fmt"
+	"os"
 	"testing"
 )
 
@@ -239,6 +242,35 @@ func TestSuggestions(t *testing.T) {
 
 	suggestions := trie.SuggestWords(s1, 2)
 	if len(suggestions) != len(expected) {
+		t.Errorf("Suggestions has the wrong number of words %v", suggestions)
+	}
+	assertAllIn(t, expected, suggestions)
+}
+
+func TestLoadDict(t *testing.T) {
+	f, err := os.Open("/usr/share/dict/words")
+	if err != nil {
+		t.Fatal("Can't find words file")
+	}
+	trie := NewTrie()
+	reader := bufio.NewReader(f)
+	word, err := reader.ReadString('\n')
+	for err == nil {
+		// Don't insert the '\n'
+		trie.InsertString(word[:len(word)-1])
+		word, err = reader.ReadString('\n')
+	}
+	if !trie.ContainsString("hello") {
+		t.Error("'hello' not found in dictionary!")
+	}
+	suggestions := trie.SuggestWords("hyllo", 1)
+	fmt.Println(suggestions)
+	expected := []string{
+		"hello",
+		//"hell",  // This doesn't show up because it's a sub & deletion FIXME
+		"holly",
+		"hollo"}
+	if len(expected) != len(suggestions) {
 		t.Errorf("Suggestions has the wrong number of words %v", suggestions)
 	}
 	assertAllIn(t, expected, suggestions)
