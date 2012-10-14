@@ -1,15 +1,10 @@
 package gospell
 
 import (
-	"bufio"
-	"fmt"
-	"os"
 	"testing"
 )
 
 func assertAllIn(t *testing.T, expected, actual []string) {
-	fmt.Printf("Expected: %v\n", expected)
-	fmt.Printf("Actual:   %v\n", actual)
 	words := make(map[string]int)
 	for _, word := range actual {
 		words[word] += 1
@@ -65,7 +60,6 @@ func TestDeletions(t *testing.T) {
 	}
 
 	deletions = trie.Deletions(s1, 1)
-	fmt.Println(deletions)
 	if len(deletions) != len(expected1) {
 		t.Errorf("Deletions has the wrong number of words %v", deletions)
 	}
@@ -251,23 +245,15 @@ func TestSuggestions(t *testing.T) {
 }
 
 func TestLoadDict(t *testing.T) {
-	f, err := os.Open("/usr/share/dict/words")
+	fname := "/usr/share/dict/words"
+	trie, err := TrieFromFile(fname)
 	if err != nil {
-		t.Fatal("Can't find words file")
-	}
-	trie := NewTrie()
-	reader := bufio.NewReader(f)
-	word, err := reader.ReadString('\n')
-	for err == nil {
-		// Don't insert the '\n'
-		trie.InsertString(word[:len(word)-1])
-		word, err = reader.ReadString('\n')
+		t.Fatal(err)
 	}
 	if !trie.ContainsString("hello") {
 		t.Error("'hello' not found in dictionary!")
 	}
 	suggestions := trie.SuggestWords("hyllo", 1)
-	fmt.Println(suggestions)
 	expected := []string{
 		"hello",
 		//"hell",  // This doesn't show up because it's a sub & deletion FIXME
@@ -318,6 +304,68 @@ func TestDistance(t *testing.T) {
 	for i, match := range suggestions {
 		if !expectedOrdered[i].Equal(match) {
 			t.Errorf("%v != %v\n", expectedOrdered[i], match)
+		}
+	}
+}
+
+func BenchmarkAdditions1(b *testing.B) {
+	benchmarkOp(b, func(trie *Trie, r []rune) {trie.additions(r, 1)})
+}
+
+func BenchmarkAdditions2(b *testing.B) {
+	benchmarkOp(b, func(trie *Trie, r []rune) {trie.additions(r, 2)})
+}
+
+func BenchmarkDeletions1(b *testing.B) {
+	benchmarkOp(b, func(trie *Trie, r []rune) {trie.deletions(r, 1)})
+}
+
+func BenchmarkDeletions2(b *testing.B) {
+	benchmarkOp(b, func(trie *Trie, r []rune) {trie.deletions(r, 2)})
+}
+
+func BenchmarkSubstitutions1(b *testing.B) {
+	benchmarkOp(b, func(trie *Trie, r []rune) {trie.substitutions(r, 1)})
+}
+
+func BenchmarkSubstitutions2(b *testing.B) {
+	benchmarkOp(b, func(trie *Trie, r []rune) {trie.substitutions(r, 2)})
+}
+
+func BenchmarkPermutations1(b *testing.B) {
+	benchmarkOp(b, func(trie *Trie, r []rune) {trie.permutations(r, 1)})
+}
+
+func BenchmarkPermutations2(b *testing.B) {
+	benchmarkOp(b, func(trie *Trie, r []rune) {trie.permutations(r, 2)})
+}
+
+func BenchmarkSuggestions1(b *testing.B) {
+	benchmarkOp(b, func(trie *Trie, r []rune) {trie.suggestions(r, 1)})
+}
+
+func BenchmarkSuggestions2(b *testing.B) {
+	benchmarkOp(b, func(trie *Trie, r []rune) {trie.suggestions(r, 2)})
+}
+
+func benchmarkOp(b *testing.B, op func(*Trie, []rune)) {
+	b.StopTimer()
+	fname := "/usr/share/dict/words"
+	trie, err := TrieFromFile(fname)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	children := trie.AllFullChildren()
+	for i:= 0; i < b.N; i++ {
+		for j, child := range children {
+			if j % 1000 != 0 {
+				continue
+			}
+			r := runes(child)
+			b.StartTimer()
+			op(trie, r)
+			b.StopTimer()
 		}
 	}
 }

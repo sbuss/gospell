@@ -1,6 +1,8 @@
 package gospell
 
 import (
+	"bufio"
+	"os"
 	"strings"
 	"testing"
 )
@@ -59,5 +61,49 @@ func TestAllChildStrings(t *testing.T) {
 	allFullStrings = t1.AllFullChildren()
 	if !HasEveryElement(t, allFullStrings, []string{"ella"}) {
 		t.Error(allFullStrings)
+	}
+}
+
+func BenchmarkLoadDict(b *testing.B) {
+	for i:= 0; i < b.N; i++ {
+		b.StopTimer()
+		f, err := os.Open("/usr/share/dict/words")
+		if err != nil {
+			b.Fatal("Can't find words file")
+		}
+		defer f.Close()
+		reader := bufio.NewReader(f)
+		word, err := reader.ReadString('\n')
+		trie := NewTrie()
+		for err == nil {
+			// Don't insert the '\n'
+			w := word[:len(word)-1]
+			b.StartTimer()
+			trie.InsertString(w)
+			b.StopTimer()
+			word, err = reader.ReadString('\n')
+		}
+	}
+}
+
+func BenchmarkLoadDictMap(b *testing.B) {
+	for i:= 0; i < b.N; i++ {
+		b.StopTimer()
+		f, err := os.Open("/usr/share/dict/words")
+		if err != nil {
+			b.Fatal("Can't find words file")
+		}
+		defer f.Close()
+		reader := bufio.NewReader(f)
+		word, err := reader.ReadString('\n')
+		m := make(map[string]int)
+		for err == nil {
+			// Don't insert the '\n'
+			w := word[:len(word)-1]
+			b.StartTimer()
+			m[w] = 1
+			b.StopTimer()
+			word, err = reader.ReadString('\n')
+		}
 	}
 }
