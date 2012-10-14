@@ -39,8 +39,8 @@ func main() {
 
 Warnings & Caveats
 ==================
-The spelling suggestions are rudimentary and don't rank results in a good order
-(which is to say the ranking is arbitrary).
+The spelling suggestions are rudimentary and only rank by distance and
+lexicographic order. Support for weighting words differently is TBD.
 
 Memory and performance both seem ok, but I haven't done any tuning.
 
