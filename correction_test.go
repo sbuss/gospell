@@ -164,3 +164,41 @@ func TestAdditions(t *testing.T) {
 	}
 	assertAllIn(t, expected2, additions)
 }
+
+func TestSubstitutions(t *testing.T) {
+	s1 := "ab狐d犬"
+	expected1 := []string{
+		"ac狐d犬",
+		"犬b狐d犬",
+		"ab狐de"}
+	expected2 := []string {
+		"bc狐d犬",
+		"a犬狐犬犬"}
+	s2 := "abc"
+	s3 := "abd"
+	s4 := "犬d狐ba"
+
+	trie := NewTrie()
+	trie.InsertString(s1)
+	trie.InsertString(s2)
+	trie.InsertString(s3)
+	trie.InsertString(s4)
+	for _, s := range expected1 {
+		trie.InsertString(s)
+	}
+	for _, s := range expected2 {
+		trie.InsertString(s)
+	}
+
+	substitutions := trie.Substitutions(s1, 1)
+	if len(substitutions) != len(expected1) {
+		t.Errorf("Substitutions has the wrong number of words %v", substitutions)
+	}
+	assertAllIn(t, expected1, substitutions)
+
+	substitutions = trie.Substitutions(s1, 2)
+	if len(substitutions) != len(expected2) {
+		t.Errorf("Substitutions has the wrong number of words %v", substitutions)
+	}
+	assertAllIn(t, expected2, substitutions)
+}
