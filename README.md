@@ -7,33 +7,21 @@ Usage
 =====
 
 ```go
+package main
+
 import (
-	"bufio"
+	"fmt"
 	"github.com/sbuss/gospell"
-	"os"
 )
 
-func LoadDict(path string) gospell.Trie {
-	f, err := os.Open(path)
-	if err != nil {
-		t.Fatal("Can't find words file")
-	}
-	trie := gospell.NewTrie()
-	reader := bufio.NewReader(f)
-	word, err := reader.ReadString('\n')
-	for err == nil {
-		// Don't insert the '\n'
-		trie.InsertString(word[:len(word)-1])
-		word, err = reader.ReadString('\n')
-	}
-	return trie
-}
-
-// ...
-
 func main() {
-	trie := LoadDict("/usr/share/dict/words")
+	trie, err := gospell.TrieFromFile("/usr/share/dict/words")
+	if err != nil {
+		panic(err)
+	}
 	suggestions := trie.SuggestWords("gospell", 2)
+	fmt.Println(suggestions)
+	//[gospelly bespell byspell enspell fostell gospel respell unspell spell]
 }
 ```
 
