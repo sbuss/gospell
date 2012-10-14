@@ -29,6 +29,7 @@ func assertAllIn(t *testing.T, expected, actual []string) {
 func TestDeletions(t *testing.T) {
 	s1 := "abcd"
 	expected1 := []string{
+		s1,
 		"abc",
 		"abd",
 		"acd",
@@ -64,6 +65,9 @@ func TestDeletions(t *testing.T) {
 	}
 	assertAllIn(t, expected1, deletions)
 
+	// The distance parameter is an upper limit, so expected1 & expected2
+	// should be returned
+	expected2 = append(expected2, expected1...)
 	deletions = trie.Deletions(s1, 2)
 	if len(deletions) != len(expected2) {
 		t.Errorf("Deletions has the wrong number of words %v", deletions)
@@ -74,6 +78,7 @@ func TestDeletions(t *testing.T) {
 func TestDeletionsUTF(t *testing.T) {
 	s1 := "ab狐d犬"
 	expected1 := []string{
+		s1,
 		"b狐d犬",
 		"a狐d犬",
 		"abd犬",
@@ -96,6 +101,7 @@ func TestDeletionsUTF(t *testing.T) {
 	}
 	assertAllIn(t, expected1, deletions)
 
+	expected3 = append(expected3, expected1...)
 	deletions = trie.Deletions(s1, 3)
 	if len(deletions) != len(expected3) {
 		t.Errorf("Deletions has the wrong number of words %v", deletions)
@@ -131,6 +137,7 @@ func TestPermutations(t *testing.T) {
 func TestAdditions(t *testing.T) {
 	s1 := "ab狐d犬"
 	expected1 := []string{
+		s1,
 		"abc狐d犬",
 		"cab狐d犬"}
 	expected2 := []string {
@@ -158,6 +165,7 @@ func TestAdditions(t *testing.T) {
 	}
 	assertAllIn(t, expected1, additions)
 
+	expected2 = append(expected2, expected1...)
 	additions = trie.Additions(s1, 2)
 	if len(additions) != len(expected2) {
 		t.Errorf("Additions has the wrong number of words %v", additions)
@@ -168,6 +176,7 @@ func TestAdditions(t *testing.T) {
 func TestSubstitutions(t *testing.T) {
 	s1 := "ab狐d犬"
 	expected1 := []string{
+		s1,
 		"ac狐d犬",
 		"犬b狐d犬",
 		"ab狐de"}
@@ -196,6 +205,7 @@ func TestSubstitutions(t *testing.T) {
 	}
 	assertAllIn(t, expected1, substitutions)
 
+	expected2 = append(expected2, expected1...)
 	substitutions = trie.Substitutions(s1, 2)
 	if len(substitutions) != len(expected2) {
 		t.Errorf("Substitutions has the wrong number of words %v", substitutions)

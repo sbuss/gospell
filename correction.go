@@ -1,7 +1,5 @@
 package gospell
 
-import "fmt"
-
 // Convert a string into a slice of runes
 func runes(s string) []rune {
 	// Based on UTF-aware string reversal by Russ Cox.
@@ -28,7 +26,7 @@ func (t *Trie) deletions(r []rune, distance int) [][]rune {
 	runes := make([][]rune, 0)
 
 	if len(r) == 0 {
-		if t.leaf && distance == 0 {
+		if t.leaf {
 			runes = append(runes, []rune{})
 		}
 		return runes
@@ -115,42 +113,40 @@ func (t *Trie) Permutations(s string, distance int) []string {
 func (t *Trie) additions(r []rune, distance int) [][]rune {
 	runes := make([][]rune, 0)
 
-	if len(r) == 0 && distance == 0 {
-		if t.leaf {
-			runes = append(runes, []rune{})
-		}
-		return runes
-	}
-
-	// Two cases:
+	// Three cases:
+	// 0. All runes have been seen, but we have distance to spare, so add runes
 	// 1. Pop the first rune from the list, recurse on the child with that rune
 	//   as the key
 	// 2. Recurse on all children of the current node, effectively adding the
 	//   key for the child to the word
-	if len(r) > 0 {
+	if len(r) == 0 {
+		// Case 0: no more runes but more to add
+		if t.leaf {
+			runes = append(runes, []rune{})
+		}
+	} else {
+		// Case 1
 		first := r[0]
 		rest := r[1:]
-		// Case 1
-		child := t.children[first]
-		if child != nil {
+		child, ok := t.children[first]
+		if ok {
 			childRunes := child.additions(rest, distance)
-			for _, c := range childRunes {
-				runes = append(runes, prependRune(c, first))
+			for _, cr := range childRunes {
+				runes = append(runes, prependRune(cr, first))
 			}
 		}
 	}
+
 	// Case 2
 	if distance > 0 {
 		for c, child := range t.children {
-			if child == nil {
-				continue
-			}
 			childRunes := child.additions(r, distance-1)
 			for _, cr := range childRunes {
 				runes = append(runes, prependRune(cr, c))
 			}
 		}
 	}
+
 	return runes
 }
 
@@ -168,9 +164,8 @@ func (t *Trie) Additions(s string, distance int) []string {
 func (t *Trie) substitutions(r []rune, distance int) [][]rune {
 	runes := make([][]rune, 0)
 
-	fmt.Println(string(r))
 	if len(r) == 0 {
-		if t.leaf && distance == 0 {
+		if t.leaf {
 			runes = append(runes, []rune{})
 		}
 		return runes
@@ -183,28 +178,23 @@ func (t *Trie) substitutions(r []rune, distance int) [][]rune {
 	//  (effectively ignoring this rune)
 	first := r[0]
 	rest := r[1:]
-	// Case 1
-	child := t.children[first]
-	if child != nil {
-		childRunes := child.substitutions(rest, distance)
-		for _, c := range childRunes {
-			runes = append(runes, prependRune(c, first))
+	for c, child := range t.children {
+		if child == nil {
+			continue
 		}
-	}
-	// Case 2
-	if distance > 0 {
-		for c, child := range t.children {
-			if child == nil {
-				continue
-			}
-			if c == first {
-				// Avoid duplicates
-				continue
-			}
-			childRunes := child.substitutions(rest, distance-1)
-			for _, cr := range childRunes {
-				runes = append(runes, prependRune(cr, c))
-			}
+		childRunes := make([][]rune, 0)
+		if c == first {
+			// Case 1
+			childRunes = child.substitutions(rest, distance)
+		} else if distance > 0 {
+			// Case 2
+			childRunes = child.substitutions(rest, distance-1)
+		} else {
+			continue
+		}
+
+		for _, cr := range childRunes {
+			runes = append(runes, prependRune(cr, c))
 		}
 	}
 	return runes
