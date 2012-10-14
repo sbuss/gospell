@@ -44,5 +44,5 @@ The spelling suggestions are rudimentary and don't rank results in a good order
 
 Memory and performance both seem ok, but I haven't done any tuning.
 
-Common problems like a substitutions followed by a deletion aren't currently
+Common problems like a substitution followed by a deletion aren't currently
 handled. e.g. "hyllo" -> "hell".
