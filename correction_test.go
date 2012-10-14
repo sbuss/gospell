@@ -140,7 +140,7 @@ func TestAdditions(t *testing.T) {
 		s1,
 		"abc狐d犬",
 		"cab狐d犬"}
-	expected2 := []string {
+	expected2 := []string{
 		"abc狐d犬e",
 		"abc狐ed犬"}
 	s2 := "abc"
@@ -180,7 +180,7 @@ func TestSubstitutions(t *testing.T) {
 		"ac狐d犬",
 		"犬b狐d犬",
 		"ab狐de"}
-	expected2 := []string {
+	expected2 := []string{
 		"bc狐d犬",
 		"a犬狐犬犬"}
 	s2 := "abc"
@@ -224,7 +224,7 @@ func TestSuggestions(t *testing.T) {
 		"toda"}
 	unexpected := []string{
 		"robert",
-		"today",  // Note: today should probably be suggested in the future
+		"today", // Note: today should probably be suggested in the future
 		"teddy",
 		"bad"}
 
@@ -237,7 +237,7 @@ func TestSuggestions(t *testing.T) {
 		trie.InsertString(s)
 	}
 
-	suggestions := trie.SuggestWords(s1,2)
+	suggestions := trie.SuggestWords(s1, 2)
 	if len(suggestions) != len(expected) {
 		t.Errorf("Suggestions has the wrong number of words %v", suggestions)
 	}
