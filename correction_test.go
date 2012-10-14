@@ -212,3 +212,34 @@ func TestSubstitutions(t *testing.T) {
 	}
 	assertAllIn(t, expected2, substitutions)
 }
+
+func TestSuggestions(t *testing.T) {
+	s1 := "toad"
+	expected := []string{
+		s1,
+		"todd",
+		"load",
+		"toads",
+		"tod",
+		"toda"}
+	unexpected := []string{
+		"robert",
+		"today",  // Note: today should probably be suggested in the future
+		"teddy",
+		"bad"}
+
+	trie := NewTrie()
+	trie.InsertString(s1)
+	for _, s := range expected {
+		trie.InsertString(s)
+	}
+	for _, s := range unexpected {
+		trie.InsertString(s)
+	}
+
+	suggestions := trie.SuggestWords(s1,2)
+	if len(suggestions) != len(expected) {
+		t.Errorf("Suggestions has the wrong number of words %v", suggestions)
+	}
+	assertAllIn(t, expected, suggestions)
+}

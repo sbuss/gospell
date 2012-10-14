@@ -210,3 +210,34 @@ func (t *Trie) Substitutions(s string, distance int) []string {
 
 	return strings
 }
+
+// Return spelling suggestions, ranked arbitrarily
+func (t *Trie) SuggestWords(s string, distance int) []string {
+	suggestions := make([]string, 0)
+	additions := t.Additions(s, distance)
+	deletions := t.Deletions(s, distance)
+	permutations := t.Permutations(s, distance)
+	substitutions := t.Substitutions(s, distance)
+
+	dupes := make(map[string]int)
+
+	addIfUnique := func(words []string) []string {
+		ret := make([]string, len(words))
+		i := 0
+		for _, word := range words {
+			if _, ok := dupes[word]; !ok {
+				ret[i] = word
+				dupes[word] = 1
+				i += 1
+			}
+		}
+		return ret[:i]
+	}
+
+	// Combine and remove duplicates
+	suggestions = append(suggestions, addIfUnique(additions)...)
+	suggestions = append(suggestions, addIfUnique(deletions)...)
+	suggestions = append(suggestions, addIfUnique(permutations)...)
+	suggestions = append(suggestions, addIfUnique(substitutions)...)
+	return suggestions
+}
