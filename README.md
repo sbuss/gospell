@@ -51,3 +51,9 @@ work. `go test -bench=".*"` to see the current performance characteristics.
 
 Common problems like a substitution followed by a deletion aren't currently
 handled. e.g. "hyllo" -> "hell".
+
+License
+=======
+
+[BSD 3-Clause](http://opensource.org/licenses/BSD-3-Clause), same as the
+[Go license](http://golang.org/LICENSE).
