@@ -3,6 +3,22 @@ gospell
 
 Spelling suggestion in Go
 
+Installation
+============
+Your standard `go get` installation.
+
+```sh
+go get github.com/sbuss/gospell
+```
+
+Testing
+-------
+```sh
+cd $GOPATH/src/github.com/sbuss/gospell
+go test
+go test -bench=".*"
+```
+
 Usage
 =====
 
@@ -30,7 +46,8 @@ Warnings & Caveats
 The spelling suggestions are rudimentary and only rank by distance and
 lexicographic order. Support for weighting words differently is TBD.
 
-Memory and performance both seem ok, but I haven't done any tuning.
+Memory seems ok, but I haven't done any tuning. Performance needs a lot of
+work. `go test -bench=".*"` to see the current performance characteristics.
 
 Common problems like a substitution followed by a deletion aren't currently
 handled. e.g. "hyllo" -> "hell".
