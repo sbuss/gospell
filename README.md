@@ -41,6 +41,13 @@ func main() {
 }
 ```
 
+Changelog
+=========
+* **v0.1** -- Initial release. Supports additions, deletions, and substitutions
+for a given distance, and all valid permutations (support for distance is
+planned). Can load a newline-delimited list of words to build a dict and can
+suggest alternate spellings for strings within a given distance.
+
 Warnings & Caveats
 ==================
 The spelling suggestions are rudimentary and only rank by distance and
