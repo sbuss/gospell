@@ -1,0 +1,14 @@
+PASS
+BenchmarkAdditions1	     100	  24521060 ns/op
+BenchmarkAdditions2	      10	 239457100 ns/op
+BenchmarkDeletions1	     200	   6482620 ns/op
+BenchmarkDeletions2	     500	   9106628 ns/op
+BenchmarkSubstitutions1	      50	  39370520 ns/op
+BenchmarkSubstitutions2	       5	 468990000 ns/op
+BenchmarkPermutations1	       1	19136408000 ns/op
+BenchmarkPermutations2	       1	11633783000 ns/op
+BenchmarkSuggestions1	       1	11111093000 ns/op
+BenchmarkSuggestions2	       1	17975445000 ns/op
+BenchmarkLoadDict	       5	1036763400 ns/op
+BenchmarkLoadDictMap	      10	 240081500 ns/op
+ok  	gospell	136.596s
