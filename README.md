@@ -2,7 +2,7 @@ gospell
 =======
 
 Spelling suggestion in Go. Current version is
-[gospell v0.1.0](https://github.com/sbuss/gospell/tags/tarball/v0.1.0).
+[gospell v0.1.0](https://github.com/sbuss/gospell/tarball/v0.1.0).
 
 Installation
 ============
@@ -44,7 +44,7 @@ func main() {
 
 Changelog
 =========
-* [v0.1.0](https://github.com/sbuss/gospell/tags/tarball/v0.1.0) --
+* [v0.1.0](https://github.com/sbuss/gospell/tarball/v0.1.0) --
 Initial release. Supports additions, deletions, and substitutions
 for a given distance, and all valid permutations (support for distance is
 planned). Can load a newline-delimited list of words to build a dict and can
