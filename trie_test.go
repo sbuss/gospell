@@ -65,7 +65,7 @@ func TestAllChildStrings(t *testing.T) {
 }
 
 func BenchmarkLoadDict(b *testing.B) {
-	for i:= 0; i < b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		b.StopTimer()
 		f, err := os.Open("/usr/share/dict/words")
 		if err != nil {
@@ -87,7 +87,7 @@ func BenchmarkLoadDict(b *testing.B) {
 }
 
 func BenchmarkLoadDictMap(b *testing.B) {
-	for i:= 0; i < b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		b.StopTimer()
 		f, err := os.Open("/usr/share/dict/words")
 		if err != nil {

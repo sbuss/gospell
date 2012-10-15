@@ -300,7 +300,6 @@ func TestDistance(t *testing.T) {
 		t.Errorf("Suggestions has the wrong number of matches %v", suggestions)
 	}
 
-
 	for i, match := range suggestions {
 		if !expectedOrdered[i].Equal(match) {
 			t.Errorf("%v != %v\n", expectedOrdered[i], match)
@@ -309,43 +308,43 @@ func TestDistance(t *testing.T) {
 }
 
 func BenchmarkAdditions1(b *testing.B) {
-	benchmarkOp(b, func(trie *Trie, r []rune) {trie.additions(r, 1)})
+	benchmarkOp(b, func(trie *Trie, r []rune) { trie.additions(r, 1) })
 }
 
 func BenchmarkAdditions2(b *testing.B) {
-	benchmarkOp(b, func(trie *Trie, r []rune) {trie.additions(r, 2)})
+	benchmarkOp(b, func(trie *Trie, r []rune) { trie.additions(r, 2) })
 }
 
 func BenchmarkDeletions1(b *testing.B) {
-	benchmarkOp(b, func(trie *Trie, r []rune) {trie.deletions(r, 1)})
+	benchmarkOp(b, func(trie *Trie, r []rune) { trie.deletions(r, 1) })
 }
 
 func BenchmarkDeletions2(b *testing.B) {
-	benchmarkOp(b, func(trie *Trie, r []rune) {trie.deletions(r, 2)})
+	benchmarkOp(b, func(trie *Trie, r []rune) { trie.deletions(r, 2) })
 }
 
 func BenchmarkSubstitutions1(b *testing.B) {
-	benchmarkOp(b, func(trie *Trie, r []rune) {trie.substitutions(r, 1)})
+	benchmarkOp(b, func(trie *Trie, r []rune) { trie.substitutions(r, 1) })
 }
 
 func BenchmarkSubstitutions2(b *testing.B) {
-	benchmarkOp(b, func(trie *Trie, r []rune) {trie.substitutions(r, 2)})
+	benchmarkOp(b, func(trie *Trie, r []rune) { trie.substitutions(r, 2) })
 }
 
 func BenchmarkPermutations1(b *testing.B) {
-	benchmarkOp(b, func(trie *Trie, r []rune) {trie.permutations(r, 1)})
+	benchmarkOp(b, func(trie *Trie, r []rune) { trie.permutations(r, 1) })
 }
 
 func BenchmarkPermutations2(b *testing.B) {
-	benchmarkOp(b, func(trie *Trie, r []rune) {trie.permutations(r, 2)})
+	benchmarkOp(b, func(trie *Trie, r []rune) { trie.permutations(r, 2) })
 }
 
 func BenchmarkSuggestions1(b *testing.B) {
-	benchmarkOp(b, func(trie *Trie, r []rune) {trie.suggestions(r, 1)})
+	benchmarkOp(b, func(trie *Trie, r []rune) { trie.suggestions(r, 1) })
 }
 
 func BenchmarkSuggestions2(b *testing.B) {
-	benchmarkOp(b, func(trie *Trie, r []rune) {trie.suggestions(r, 2)})
+	benchmarkOp(b, func(trie *Trie, r []rune) { trie.suggestions(r, 2) })
 }
 
 func benchmarkOp(b *testing.B, op func(*Trie, []rune)) {
@@ -357,9 +356,9 @@ func benchmarkOp(b *testing.B, op func(*Trie, []rune)) {
 	}
 
 	children := trie.AllFullChildren()
-	for i:= 0; i < b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		for j, child := range children {
-			if j % 1000 != 0 {
+			if j%1000 != 0 {
 				continue
 			}
 			r := runes(child)
